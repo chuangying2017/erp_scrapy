@@ -18,7 +18,23 @@ def index(request):
 
 
 def fiction(request):
-    pass
+    entry: dict = {}
+    if request.method == 'POST':
+        data = request.POST
+        fiction_result = Fiction.objects.create(title=data['title'],
+                                                author=data['author'],
+                                                last_update_time=data['last_update_time'],
+                                                desc=data['desc'],
+                                                status=data['status'],
+                                                convert=data['convert'],
+                                                latest_chapter=data['latest_chapter'],
+                                                class_id=data['class_id'])
+        entry = {'status': 'success', 'msg': '操作成功', 'id': fiction_result.pk}
+
+    else:
+        entry = {'status': 'fail', 'msg': '请求方式有误'}
+
+    return JsonResponse(entry, status=201)
 
 
 '''
@@ -52,4 +68,10 @@ def fiction_class(request):
 
 
 def fiction_chapter(request):
-    pass
+    result = {'status': '', 'msg': ''}
+    if request.method == 'POST':
+        data = request.POST  # 获取所有的数据
+    else:
+        result['status'] = 'fail'; request['msg'] = '操作失败'
+
+    return JsonResponse(result, status=201)
