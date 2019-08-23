@@ -77,6 +77,7 @@ WSGI_APPLICATION = 'erp_scrapy.wsgi.application'
 
 DATABASES = {
     'default': {
+        #'ENGINE': 'django_mysqlpool.backends.mysqlpool',   # 数据库引擎
         'ENGINE': 'django.db.backends.mysql',   # 数据库引擎
         'NAME': 'xiaoshuo',         # 你要存储数据的库名，事先要创建之
         'USER': 'root',         # 数据库用户名
@@ -124,3 +125,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MYSQLPOOL_BACKEND: str = 'QueuePool'
+MYSQLPOOL_ARGUMENTS: dict = {
+    'use_threadlocal': False,
+}

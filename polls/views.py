@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, HttpRequest
+from django.http import HttpResponse, JsonResponse
 import json
 from polls.models import FictionClass, Fiction, FictionChapter
 import time
+from pymysql import MySQLError
 
 
 # Create your views here.
@@ -18,22 +19,26 @@ def index(request):
 
 
 def fiction(request):
-    entry: dict = {}
     if request.method == 'POST':
         data = request.POST
-        fiction_result = Fiction.objects.create(title=data['title'],
-                                                author=data['author'],
-                                                last_update_time=data['last_update_time'],
-                                                desc=data['desc'],
-                                                status=data['status'],
-                                                convert=data['convert'],
-                                                latest_chapter=data['latest_chapter'],
-                                                class_id=data['class_id'])
-        entry = {'status': 'success', 'msg': '操作成功', 'id': fiction_result.pk}
+        res = Fiction.objects.filter(title=data['title'])
+        if res.exists():
+            fiction_result = res.first()
+            msg = 'already'
+        else:
+            fiction_result = Fiction.objects.create(title=data['title'],
+                                                    author=data['author'],
+                                                    last_update_time=data['last_update_time'],
+                                                    desc=data['desc'],
+                                                    status=data['status'],
+                                                    latest_chapter=data['latest_chapter'],
+                                                    class_id=data['class_id'])
+            msg = 'create success'
 
+        entry = {'status': 'success', 'msg': msg, 'id': fiction_result.pk}
     else:
-        entry = {'status': 'fail', 'msg': '请求方式有误'}
-
+        entry = {'status': 'fail', 'msg': 'request mode mistaken'}
+    """:return table id"""
     return JsonResponse(entry, status=201)
 
 
@@ -57,7 +62,7 @@ def fiction_class(request):
             data = res.pk
         entry = {'msg': entry, 'id': data}
     else:
-        return JsonResponse({'status': 'fail', 'msg': '方法不可用'})
+        return JsonResponse({'status': 'fail', 'msg': 'method is not use!'})
 
     return JsonResponse(entry)
 
@@ -71,7 +76,28 @@ def fiction_chapter(request):
     result = {'status': '', 'msg': ''}
     if request.method == 'POST':
         data = request.POST  # 获取所有的数据
+        try:
+            res = FictionChapter.objects.filter(chapter=data['chapter'])
+            result['status'] = 'success'
+            if res.exists():
+                result['msg'] = 'already'
+            else:
+                res.create(fiction_id=data['fiction_id'], chapter=data['chapter'],
+                           title=data['title'],
+                           content=data['content'])
+                result['msg'] = 'insert success'
+
+        except ConnectionError:
+            result['status'] = 'fail'
+            result['msg'] = 'database connect fail'
+        except MySQLError:
+            result['status'] = 'fail'
+            result['msg'] = 'mysql error'
+        except MemoryError:
+            result['status'] = 'fail'
+            result['msg'] = 'memory piss'
     else:
-        result['status'] = 'fail'; request['msg'] = '操作失败'
+        result['status'] = 'fail'
+        request['msg'] = 'operation fail'
 
     return JsonResponse(result, status=201)
