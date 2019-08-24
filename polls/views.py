@@ -89,13 +89,11 @@ def fiction_chapter(request):
             #                title=data['title'],
             #                content=data['content'])
             #     result['msg'] = 'insert success'
-            fiction_list_to_insert: list = []
+            # fiction_list_to_insert: list = []
 
-            # FictionChapter.objects.create(fiction_id=data['fiction_id'],
-            #                               title=data['title'],
-            #                               content=data['content'])
-
-            print(data)
+            FictionChapter.objects.create(fiction_id=data['fiction_id'],
+                                          title=data['title'],
+                                          content=data['content'])
 
             result['msg'] = 'insert success'
 
