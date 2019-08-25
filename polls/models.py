@@ -16,7 +16,7 @@ class Fiction(models.Model):
     status = models.CharField(max_length=255, blank=True, null=True)
     convert = models.CharField(max_length=255, blank=True, null=True)
     latest_chapter = models.CharField(max_length=255, blank=True, null=True)
-    class_id = models.IntegerField(blank=True, null=True)
+    class_id = models.ForeignKey('FictionClass', blank=True, null=True, db_column='class_id', on_delete=models.CASCADE)
 
     class Meta:
         managed = False
@@ -24,7 +24,8 @@ class Fiction(models.Model):
 
 
 class FictionChapter(models.Model):
-    fiction_id = models.IntegerField(null=True, blank=True)
+    # fiction_id = models.IntegerField(null=True, blank=True)
+    fiction_id = models.ForeignKey(Fiction, on_delete=models.CASCADE, null=True, blank=True, db_column='fiction_id')
     chapter = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     content = models.TextField(blank=True, null=True)

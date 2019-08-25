@@ -111,3 +111,34 @@ def fiction_chapter(request):
         request['msg'] = 'operation fail'
 
     return JsonResponse(result, status=201)
+
+
+def batch_create_data(request):
+    body = request.body
+    data = body.decode(encoding='utf-8')
+    ls = json.loads(data)
+    some_queryset = FictionClass.objects.filter(title__exact=ls['class_name'])
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    if some_queryset.exists():
+        fiction_class_data = some_queryset.first()
+    else:
+        fiction_class_data = some_queryset.create(title=ls['class_name'], create_time=current_time, update_time=current_time)
+    fiction_name = Fiction.objects.filter(title__exact=ls['title'])
+    if fiction_name.exists():
+        fiction_result = fiction_name.first()
+    else:
+        fiction_result = Fiction.objects.create(title=ls['title'],
+                                                author=ls['author'],
+                                                last_update_time=ls['last_update_time'],
+                                                desc=ls['desc'],
+                                                status=ls['status'],
+                                                latest_chapter=ls['latest_chapter'],
+                                                class_id=fiction_class_data)
+    chapter_list: list = []
+    print(ls['data'])
+    for i, v in enumerate(ls['data']):
+        chapter_list.append(FictionChapter(
+            fiction_id=fiction_result, title=v['title'], content=v['content']
+        ))
+    FictionChapter.objects.bulk_create(chapter_list)
+    return JsonResponse({'status': 'success'})

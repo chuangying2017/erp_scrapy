@@ -7,4 +7,5 @@ urlpatterns = [
     path('get_fiction/', views.fiction_class, name='fiction_class'),
     path('post_fiction_create/', views.fiction, name='fiction_create'),
     path('post_fiction_chapter/', views.fiction_chapter, name='fiction_chapter'),
+    path('post_batch_create_data/', views.batch_create_data, name='batch_create_data'),
 ]
